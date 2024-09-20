@@ -48,7 +48,7 @@ export default function App() {
     //debugger
   }
 
-  const login = ({ username, password }) => {
+  const login = async ({ username, password }) => {
     // ✨ implement
     // We should flush the message state, turn on the spinner
     // and launch a request to the proper endpoint.
@@ -70,33 +70,54 @@ export default function App() {
     
     setMessage('')
     setSpinnerOn(true)
-
-    fetch(loginUrl, {
-      method: 'POST',
-      headers: new Headers({
-        'Content-Type': 'application/json'
-      }),
-      body: JSON.stringify({ username, password })
-    })
-      .then(res => {
-        if (!res.ok) {
-          return res.json().then(err => {
-            throw new Error(err.message)
-          })
-        }
-        return res.json()
+    try {
+      const response = await fetch(loginUrl, {
+        method: 'POST',
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        }),
+        body: JSON.stringify({ username, password })
       })
-      .then(data => {
+      const data = await response.json()
+      if(response.ok) {
         localStorage.setItem('token', data.token)
-        setMessage(data.message)
+        setMessage(data.message || 'Login successful')
         redirectToArticles()
-      })
-      .catch(err => {
-        setMessage(err.message || 'An error occurred')
-      })
-      .finally(() => {
-        setSpinnerOn(false)
-      })
+      } else {
+        setMessage(data.message || "Login failed")
+      }
+      
+    } catch (err) {
+      setMessage(err)
+    } finally {
+      setSpinnerOn(false)
+    }
+    // fetch(loginUrl, {
+    //   method: 'POST',
+    //   headers: new Headers({
+    //     'Content-Type': 'application/json'
+    //   }),
+    //   body: JSON.stringify({ username, password })
+    // })
+    //   .then(res => {
+    //     if (!res.ok) {
+    //       return res.json().then(err => {
+    //         throw new Error(err.message)
+    //       })
+    //     }
+    //     return res.json()
+    //   })
+    //   .then(data => {
+    //     localStorage.setItem('token', data.token)
+    //     setMessage(data.message)
+    //     redirectToArticles()
+    //   })
+    //   .catch(err => {
+    //     setMessage(err.message || 'An error occurred')
+    //   })
+    //   .finally(() => {
+    //     setSpinnerOn(false)
+    //   })
    }
 
   const getArticles = () => {
@@ -143,7 +164,7 @@ export default function App() {
           <NavLink id="articlesScreen" to="/articles">Articles</NavLink>
         </nav>
         <Routes>
-          <Route path="/" element={<LoginForm onClick={login} />} />
+          <Route path="/" element={<LoginForm login={login} />} />
           <Route path="articles" element={
             <>
               <ArticleForm />
