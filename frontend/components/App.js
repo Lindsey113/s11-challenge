@@ -10,6 +10,14 @@ import axios from 'axios'
 
 const articlesUrl = 'http://localhost:9000/api/articles'
 const loginUrl = 'http://localhost:9000/api/login'
+const auth = () => {
+  const token = localStorage.getItem('token');
+  return axios.create({
+    headers: {
+      authorization: token,
+    }
+  })
+}
 
 export default function App() {
   // ✨ MVP can be achieved with these states
@@ -44,8 +52,6 @@ export default function App() {
       setMessage('Goodbye!')
       redirectToLogin()
     }
-
-    //debugger
   }
 
   const login = async ({ username, password }) => {
@@ -55,19 +61,8 @@ export default function App() {
     // On success, we should set the token to local storage in a 'token' key,
     // put the server success message in its proper state, and redirect
     // to the Articles screen. Don't forget to turn off the spinner!
- 
-    
 
-    // try {
-    //   const {data} = await axios.post(
-    //     '/api/login',
-    //     {username, password}
-    //   )
-    //   localStorage.setItem('token', data.token)
-    // } catch(err) {
-    //   console.log(err)
-    // }
-    
+
     setMessage('')
     setSpinnerOn(true)
     try {
@@ -79,48 +74,23 @@ export default function App() {
         body: JSON.stringify({ username, password })
       })
       const data = await response.json()
-      if(response.ok) {
+      if (response.ok) {
         localStorage.setItem('token', data.token)
         setMessage(data.message || 'Login successful')
         redirectToArticles()
       } else {
         setMessage(data.message || "Login failed")
       }
-      
+
     } catch (err) {
       setMessage(err)
     } finally {
       setSpinnerOn(false)
     }
-    // fetch(loginUrl, {
-    //   method: 'POST',
-    //   headers: new Headers({
-    //     'Content-Type': 'application/json'
-    //   }),
-    //   body: JSON.stringify({ username, password })
-    // })
-    //   .then(res => {
-    //     if (!res.ok) {
-    //       return res.json().then(err => {
-    //         throw new Error(err.message)
-    //       })
-    //     }
-    //     return res.json()
-    //   })
-    //   .then(data => {
-    //     localStorage.setItem('token', data.token)
-    //     setMessage(data.message)
-    //     redirectToArticles()
-    //   })
-    //   .catch(err => {
-    //     setMessage(err.message || 'An error occurred')
-    //   })
-    //   .finally(() => {
-    //     setSpinnerOn(false)
-    //   })
-   }
+  }
 
-  const getArticles = async () => {
+
+  const getArticles = (reset) => {
     // ✨ implement
     // We should flush the message state, turn on the spinner
     // and launch an authenticated request to the proper endpoint.
@@ -130,31 +100,48 @@ export default function App() {
     // if it's a 401 the token might have gone bad, and we should redirect to login.
     // Don't forget to turn off the spinner!
 
+
+
     setMessage('')
     setSpinnerOn(true)
 
+   auth()
+   .get(articlesUrl)
+   .then((res) => {
+    if(!reset) {
+      setMessage(res.data.message)
+    }
+    setArticles(res.data.articles)
+    setSpinnerOn(false)
+   })
 
-    // try {
-    //   const {data} = await axios.post(
-    //     '/api/login',
-    //     {username, password}
-    //   )
-    //   localStorage.setItem('token', data.token)
-    //   navigate('/articles')
-
-    // } catch (error) {
-    //   console.log('error')
-    // } finally {
-    //   setSpinnerOn(false)
-    // }
 
   }
 
-  const postArticle = article => {
+
+
+
+
+
+
+  const postArticle = (article) => {
     // ✨ implement
     // The flow is very similar to the `getArticles` function.
     // You'll know what to do! Use log statements or breakpoints
     // to inspect the response from the server.
+    setSpinnerOn(true)
+    return auth()
+      .post(articlesUrl, article)
+      .then((res) => {
+        getArticles(reset)
+        setMessage(res.data.message)
+        setSpinnerOn(false)
+
+      })
+      .catch((err) => {
+        setSpinnerOn(false)
+        console.log(err)
+      })
   }
 
   const updateArticle = ({ article_id, article }) => {
@@ -182,8 +169,8 @@ export default function App() {
           <Route path="/" element={<LoginForm login={login} />} />
           <Route path="articles" element={
             <>
-              <ArticleForm />
-              <Articles  />
+              <ArticleForm articles={articles} />
+              <Articles />
             </>
           } />
         </Routes>

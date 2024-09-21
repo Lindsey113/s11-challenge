@@ -1,26 +1,28 @@
-import React, { useEffect } from 'react'
-import { Navigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import PT from 'prop-types'
 
 export default function Articles(props) {
   // ✨ where are my props? Destructure them here
+  const {
+    getArticles,
+    articles,
+    setCurrentArticleId,
+    deleteArticle } = props
 
   // ✨ implement conditional logic: if no token exists
   // we should render a Navigate to login screen (React Router v.6)
+  const navigate = useNavigate()
 
   useEffect(() => {
     // ✨ grab the articles here, on first render only
-    const fetchArticles = async () => {
-      try {
-        const {data} = await axios.get(
-          '/api/articles',
-          {headers: {Authorization: localStorage.getItem('token')}}
-        )
-      } catch (err) {
-
-      }
+    const token = localStorage.getItem('token')
+    if (!token) {
+      return navigate('/')
     }
-    fetchArticles()
+    if(!articles.length) {
+      return getArticles()
+    }
   }, [])
 
   return (
