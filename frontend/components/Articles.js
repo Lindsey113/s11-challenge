@@ -10,7 +10,18 @@ export default function Articles(props) {
 
   useEffect(() => {
     // ✨ grab the articles here, on first render only
-  })
+    const fetchArticles = async () => {
+      try {
+        const {data} = await axios.get(
+          '/api/articles',
+          {headers: {Authorization: localStorage.getItem('token')}}
+        )
+      } catch (err) {
+
+      }
+    }
+    fetchArticles()
+  }, [])
 
   return (
     // ✨ fix the JSX: replace `Function.prototype` with actual functions

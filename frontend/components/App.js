@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { NavLink, Routes, Route, useNavigate } from 'react-router-dom'
 import Articles from './Articles'
 import LoginForm from './LoginForm'
@@ -120,7 +120,7 @@ export default function App() {
     //   })
    }
 
-  const getArticles = () => {
+  const getArticles = async () => {
     // ✨ implement
     // We should flush the message state, turn on the spinner
     // and launch an authenticated request to the proper endpoint.
@@ -132,6 +132,21 @@ export default function App() {
 
     setMessage('')
     setSpinnerOn(true)
+
+
+    // try {
+    //   const {data} = await axios.post(
+    //     '/api/login',
+    //     {username, password}
+    //   )
+    //   localStorage.setItem('token', data.token)
+    //   navigate('/articles')
+
+    // } catch (error) {
+    //   console.log('error')
+    // } finally {
+    //   setSpinnerOn(false)
+    // }
 
   }
 
@@ -168,7 +183,7 @@ export default function App() {
           <Route path="articles" element={
             <>
               <ArticleForm />
-              <Articles />
+              <Articles  />
             </>
           } />
         </Routes>
