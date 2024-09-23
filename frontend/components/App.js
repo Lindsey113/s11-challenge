@@ -6,10 +6,12 @@ import Message from './Message'
 import ArticleForm from './ArticleForm'
 import Spinner from './Spinner'
 import axios from 'axios'
+import e from 'cors'
 
 
 const articlesUrl = 'http://localhost:9000/api/articles'
 const loginUrl = 'http://localhost:9000/api/login'
+const success = true
 const auth = () => {
   const token = localStorage.getItem('token');
   return axios.create({
@@ -51,6 +53,7 @@ export default function App() {
       localStorage.removeItem('token')
       setMessage('Goodbye!')
       redirectToLogin()
+      setArticles([])
     }
   }
 
@@ -90,7 +93,7 @@ export default function App() {
   }
 
 
-  const getArticles = (reset) => {
+  const getArticles = (success) => {
     // ✨ implement
     // We should flush the message state, turn on the spinner
     // and launch an authenticated request to the proper endpoint.
@@ -105,15 +108,24 @@ export default function App() {
     setMessage('')
     setSpinnerOn(true)
 
-   auth()
-   .get(articlesUrl)
-   .then((res) => {
-    if(!reset) {
-      setMessage(res.data.message)
-    }
-    setArticles(res.data.articles)
-    setSpinnerOn(false)
-   })
+    auth()
+      .get(articlesUrl)
+      .then((res) => {
+        if (!success) {
+          setMessage(res.data.message)
+        } 
+        setArticles(res.data.articles)
+      })
+      .catch((error) => {
+        if(error.response && error.response.status == 401){
+          redirectToLogin()
+        } else {
+          setMessage('An error occured')
+        }
+      })
+      .finally(() => {
+        setSpinnerOn(false)
+      })
 
 
   }
@@ -133,7 +145,7 @@ export default function App() {
     return auth()
       .post(articlesUrl, article)
       .then((res) => {
-        getArticles(reset)
+        getArticles(success)
         setMessage(res.data.message)
         setSpinnerOn(false)
 
@@ -147,10 +159,30 @@ export default function App() {
   const updateArticle = ({ article_id, article }) => {
     // ✨ implement
     // You got this!
+    setSpinnerOn(true)
+    return auth()
+    .then(res => {
+      getArticles(success)
+      setMessage(res.data.message)
+      setCurrentArticleId()
+    })
+    .catch(err => {
+      setSpinnerOn(false)
+      console.error(err)
+    })
+    .finally(() => {
+      setSpinnerOn(false)
+    })
   }
 
   const deleteArticle = article_id => {
     // ✨ implement
+    fetch(`http://localhost:9000/api/articles/${article_id}`, {
+      method: 'DELETE'
+    })
+    .then(res => res.json())
+    .then(data => console.log('Deleted ', data))
+    .catch(err => console.error('Error: ', err))
   }
 
   return (
@@ -169,8 +201,17 @@ export default function App() {
           <Route path="/" element={<LoginForm login={login} />} />
           <Route path="articles" element={
             <>
-              <ArticleForm articles={articles} />
-              <Articles />
+              <ArticleForm 
+              articles={articles}
+              postArticle={postArticle}
+              currentArticle={currentArticleId}
+              setCurrentArticleId={setCurrentArticleId}
+              updateArticle={updateArticle}/>
+              <Articles 
+              articles={articles}
+              getArticles={getArticles}
+              deleteArticle={deleteArticle}
+              setCurrentArticleId={setCurrentArticleId} />
             </>
           } />
         </Routes>

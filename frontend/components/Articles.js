@@ -10,20 +10,46 @@ export default function Articles(props) {
     setCurrentArticleId,
     deleteArticle } = props
 
+  const token = localStorage.getItem('token')
   // ✨ implement conditional logic: if no token exists
   // we should render a Navigate to login screen (React Router v.6)
   const navigate = useNavigate()
 
   useEffect(() => {
     // ✨ grab the articles here, on first render only
-    const token = localStorage.getItem('token')
-    if (!token) {
+
+    if(!token) {
       return navigate('/')
     }
     if(!articles.length) {
       return getArticles()
     }
+
+    // function fetchArticles() {
+    //   fetch('http://localhost:9000/api/articles')
+    // .then (res => {
+    //   if(!token) {
+    //     navigate('/')
+    //   }
+
+    //   if(!res.ok) {
+    //     throw new Error ('Error!!!')
+    //   } 
+    // }) 
+    // .catch(err => {
+    //   console.error(err)
+    // })
+    // }
+    // fetchArticles()
   }, [])
+
+  function loggedIn() {
+    if(!token) {
+      return true
+    } else {
+      return false
+    }
+  }
 
   return (
     // ✨ fix the JSX: replace `Function.prototype` with actual functions
@@ -42,8 +68,8 @@ export default function Articles(props) {
                   <p>Topic: {art.topic}</p>
                 </div>
                 <div>
-                  <button disabled={true} onClick={Function.prototype}>Edit</button>
-                  <button disabled={true} onClick={Function.prototype}>Delete</button>
+                  <button disabled={loggedIn()} onClick={Function.prototype}>Edit</button>
+                  <button disabled={loggedIn()} onClick={() => deleteArticle(art.article_id)}>Delete</button>
                 </div>
               </div>
             )
