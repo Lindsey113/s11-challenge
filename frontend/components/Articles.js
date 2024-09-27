@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PT from 'prop-types'
 
@@ -56,10 +56,9 @@ export default function Articles(props) {
     // and use the articles prop to generate articles
     <div className="articles">
       <h2>Articles</h2>
-      {
-        ![].length
-          ? 'No articles yet'
-          : [].map(art => {
+      {!articles.length
+        ? "No articles yet"
+        : articles.map((art) => {
             return (
               <div className="article" key={art.article_id}>
                 <div>
@@ -68,7 +67,7 @@ export default function Articles(props) {
                   <p>Topic: {art.topic}</p>
                 </div>
                 <div>
-                  <button disabled={loggedIn()} onClick={Function.prototype}>Edit</button>
+                  <button disabled={loggedIn()} onClick={() => setCurrentArticleId(art.article_id)}>Edit</button>
                   <button disabled={loggedIn()} onClick={() => deleteArticle(art.article_id)}>Delete</button>
                 </div>
               </div>

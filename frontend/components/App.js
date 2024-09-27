@@ -161,28 +161,33 @@ export default function App() {
     // You got this!
     setSpinnerOn(true)
     return auth()
-    .then(res => {
+    .put(`${articlesUrl}/${article_id}`, article)
+    .then((res) => {
       getArticles(success)
       setMessage(res.data.message)
       setCurrentArticleId()
-    })
-    .catch(err => {
       setSpinnerOn(false)
-      console.error(err)
     })
-    .finally(() => {
+    .catch((err) => {
+      console.error('Error: ', err)
       setSpinnerOn(false)
     })
   }
 
   const deleteArticle = article_id => {
     // ✨ implement
-    fetch(`http://localhost:9000/api/articles/${article_id}`, {
-      method: 'DELETE'
+    setSpinnerOn(true)
+    return auth()
+    .delete(`${articlesUrl}/${article_id}`)
+    .then((res) => {
+      getArticles(success)
+      setMessage(res.data.message)
+      setSpinnerOn(false)
     })
-    .then(res => res.json())
-    .then(data => console.log('Deleted ', data))
-    .catch(err => console.error('Error: ', err))
+    .catch((err) => {
+      console.error('Error: ', err)
+      setSpinnerOn(false)
+    })
   }
 
   return (
