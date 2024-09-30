@@ -7,12 +7,7 @@ const initialFormValues = {
 }
 export default function LoginForm(props) {
   const [values, setValues] = useState(initialFormValues)
-  const {login} = props
-  // ✨ where are my props? Destructure them here
-
-
-  
-
+  const { login } = props
   const onChange = evt => {
     const { id, value } = evt.target
     setValues({ ...values, [id]: value })
@@ -22,15 +17,12 @@ export default function LoginForm(props) {
     evt.preventDefault()
     login(values)
     setValues(initialFormValues)
-    // ✨ implement
+
   }
 
   const isDisabled = () => {
-    // ✨ implement
-    // Trimmed username must be >= 3, and
-    // trimmed password must be >= 8 for
-    // the button to become enabled
-    if(values.username.trim().length >= 3 && values.password.trim().length >= 8) {
+
+    if (values.username.trim().length >= 3 && values.password.trim().length >= 8) {
       return false
     } return true
   }
@@ -57,8 +49,6 @@ export default function LoginForm(props) {
   )
 }
 
-// 🔥 No touchy: LoginForm expects the following props exactly:
-// but now i want to touch it >:(
 LoginForm.propTypes = {
   login: PT.func.isRequired,
 }
